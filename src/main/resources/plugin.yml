@@ -1,0 +1,25 @@
+name: RealtimeSync
+version: '${version}'
+main: com.caellab.realtimesync.RealtimeSyncPlugin
+api-version: '1.21'
+description: >
+  将游戏内昼夜循环与真实时间完全同步。
+  支持自定义时区偏移、同步间隔、排除世界。
+author: Yunyun(云云)
+website: https://github.com/yunyun-3782/RealtimeSync
+commands:
+  realtimesync-reload:
+    description: 重载RealtimeSync配置
+    usage: /realtimesync-reload
+    permission: realtimesync.admin
+  time:
+    description: 查看当前真实时间和游戏时间
+    usage: /time
+    permission: realtimesync.time
+permissions:
+  realtimesync.admin:
+    description: 管理员权限
+    default: op
+  realtimesync.time:
+    description: 查看时间
+    default: true

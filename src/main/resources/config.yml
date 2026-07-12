@@ -1,0 +1,5 @@
+timezone-offset: "+08:00:00"
+sync-interval: 1200
+announce-on-join: true
+prefix: "&a&l[RealtimeSync] &r"
+disabled-worlds: []
