@@ -8,6 +8,7 @@ package com.caellab.realtimesync;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,6 +35,10 @@ public class RealtimeSyncPlugin extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         loadConfig();
+
+        // 启动时在全局区域设一次 doDaylightCycle = false，防止自然流逝干扰同步
+        disableDaylightCycle();
+
         startSyncTask();
         getServer().getPluginManager().registerEvents(new RealtimeSyncListener(this), this);
         getLogger().info("RealtimeSync v" + getDescription().getVersion()
@@ -53,6 +58,7 @@ public class RealtimeSyncPlugin extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("realtimesync-reload")) {
             loadConfig();
+            disableDaylightCycle();
             if (syncTask != null) syncTask.cancel();
             startSyncTask();
             syncAll();
@@ -79,6 +85,20 @@ public class RealtimeSyncPlugin extends JavaPlugin {
         return false;
     }
 
+    /**
+     * 启动时在全局区域设一次 doDaylightCycle = false
+     * 只调一次，不用每次同步都设（RegionScheduler里设gameRule在Folia下不稳）
+     */
+    private void disableDaylightCycle() {
+        Bukkit.getGlobalRegionScheduler().run(this, task -> {
+            for (World world : Bukkit.getWorlds()) {
+                if (disabledWorlds.contains(world.getName().toLowerCase())) continue;
+                world.setGameRuleValue("doDaylightCycle", "false");
+            }
+            getLogger().info("doDaylightCycle disabled for all worlds");
+        });
+    }
+
     private void startSyncTask() {
         syncTask = Bukkit.getGlobalRegionScheduler().runAtFixedRate(this, task -> {
             syncAll();
@@ -93,9 +113,9 @@ public class RealtimeSyncPlugin extends JavaPlugin {
                 continue;
             }
             // Folia: use RegionScheduler to run on the correct thread
+            // 只设时间，不再设 gameRule（已在 onEnable 里设过）
             Bukkit.getRegionScheduler().run(this, world.getSpawnLocation(), task -> {
                 world.setTime(gameTicks);
-                world.setGameRuleValue("doDaylightCycle", "false");
             });
         }
     }
