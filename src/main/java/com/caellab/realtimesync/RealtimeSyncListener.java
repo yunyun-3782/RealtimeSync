@@ -1,5 +1,6 @@
 /*
- * CaelLab BY-SA Code License
+ * CaelLab BY-SA Code License, Version 3 or any later version
+ * https://www.caellab.com/license/cbs-v3
  * Copyright (c) 2025 Yunyun(云云)
  * Source: https://github.com/yunyun-3782/RealtimeSync
  */
